@@ -1,7 +1,7 @@
 class Grafo: 
     def __init__(self, dic):
         # Recebe um dicionário contendo a lista de arestas do grafo, onde cada aresta é uma tupla (u, v, peso)
-        self.lista_arestas = dic["lista_arestas"]
+        self.lista_arestas = dic["conjunto_de_arestas"]
 
         self.lista_adj = {} # Cria uma lista de adjacência
         for u, v, peso in self.lista_arestas:
@@ -29,13 +29,13 @@ class Grafo:
         if v not in self.lista_adj:
             return []
         #Para cada (vizinho, peso) em lista_adj[v], adicione apenas o vizinho na lista final”
-        return [vizinho for vizinho, _ in self.lista_adj[v]]
+        return list(set(vizinho for vizinho, _ in self.lista_adj[v]))
 
     #Retorna o grau do vértice v, ou seja, o número de arestas incidentes a v. Em oureas palavras a quantidade de vizinhos que o vertice possui
     def grau_do_vertice (self, v):
         if v not in self.lista_adj:
             return 0
-        return len(self.lista_adj[v])
+        return len(set(self.lista_adj[v]))
 
     #Retorna o peso da aresta uv
     def peso_da_aresta (self, u, v):
