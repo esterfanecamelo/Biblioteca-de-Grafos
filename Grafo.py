@@ -1,3 +1,5 @@
+from collections import deque
+
 class Grafo: 
     def __init__(self, dic):
         # Recebe um dicionário contendo a lista de arestas do grafo, onde cada aresta é uma tupla (u, v, peso)
@@ -57,3 +59,24 @@ class Grafo:
         if not self.lista_adj:
             return 0
         return max(len(adj) for adj in self.lista_adj.values())
+    
+    def bfs (self, s):
+        # d armazena distância de s até cada vértice
+        d = {v: float("inf") for v in self.lista_adj}
+        # pi armazena o predecessor
+        pi = {v : None for v in self.lista_adj}
+        
+        d[s] = 0 # caminho de s até eele mesmo
+        
+        fila = deque([s]) # fila FIFO
+        
+        while fila:
+            u = fila.popleft()
+            for v, _ in self.lista_adj[u]:
+                if d[v] == float("inf"):
+                    d[v] = d[u] + 1
+                    pi[v] = u
+                    fila.append(v)
+        return d, pi        
+
+
