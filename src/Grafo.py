@@ -1,4 +1,5 @@
 from collections import deque
+import heapq
 
 class Grafo: 
     def __init__(self, dic):
@@ -80,3 +81,79 @@ class Grafo:
         return d, pi        
 
 
+    def dfs(self, s):
+            visitado = {v: False for v in self.lista_adj}
+            pi = {v: None for v in self.lista_adj}
+            ini = {v: 0 for v in self.lista_adj}
+            fim = {v: 0 for v in self.lista_adj}
+            tempo = [0]
+
+            def dfs_visita(u):
+                visitado[u] = True
+                tempo[0] += 1
+                ini[u] = tempo[0]
+
+                for v, _ in self.lista_adj[u]:
+                    if not visitado[v]:
+                        pi[v] = u
+                        dfs_visita(v)
+
+                tempo[0] += 1
+                fim[u] = tempo[0]
+
+            dfs_visita(s)
+            return pi, ini, fim
+
+    def bellman_ford(self, s):
+        d = {v: float("inf") for v in self.lista_adj}
+        pi = {v: None for v in self.lista_adj}
+        d[s] = 0
+
+        for _ in range(self.vertices - 1):
+            mudou = False
+            for u, v, peso in self.lista_arestas:
+                if d[u] + peso < d[v]:
+                    d[v] = d[u] + peso
+                    pi[v] = u
+                    mudou = True
+            for u, v, peso in self.lista_arestas:
+                if d[v] + peso < d[u]:
+                    d[u] = d[v] + peso
+                    pi[u] = v
+                    mudou = True
+            if not mudou:
+                break
+
+        return d, pi
+
+    def dijkstra(self, s):
+        d = {v: float("inf") for v in self.lista_adj}
+        pi = {v: None for v in self.lista_adj}
+        d[s] = 0
+
+        fila = [(0, s)]
+        while fila:
+            dist_u, u = heapq.heappop(fila)
+            if dist_u > d[u]:
+                continue
+            
+            for v, peso in self.lista_adj[u]:
+                if d[u] + peso < d[v]:
+                    d[v] = d[u] + peso
+                    pi[v] = u
+                    heapq.heappush(fila, (d[v], v))
+
+        return d, pi
+
+    def coloracao_propria(self):
+        cores = {}
+        for v in sorted(self.lista_adj):
+            vizinhos = self.retornar_vizinhos(v)
+            cores_ocupadas = {cores[x] for x in vizinhos if x in cores}
+            cor = 1
+            while cor in cores_ocupadas:
+                cor += 1
+            cores[v] = cor
+        
+        k = max(cores.values())
+        return cores, k
