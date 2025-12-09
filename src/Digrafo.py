@@ -3,22 +3,24 @@ import heapq
 
 class Digrafo:
     def __init__(self, dic):
-        self.lista_arestas = dic["conjunto_de_arestas"]
+        # Dados vindos da função ler_arquivo
+        self.lista_arestas = dic["arestas"]
+        self.lista_adj = dic["adj"]
+        self.vertices = dic.get("num_vertices", len(self.lista_adj))
 
-        self.lista_adj = {}
-        for u, v, peso in self.lista_arestas:
-            if u not in self.lista_adj:
-                self.lista_adj[u] = []
+        # Garante que todos os vértices (1..N) existam na lista_adj,
+        # mesmo os isolados
+        for v in range(1, self.vertices + 1):
             if v not in self.lista_adj:
                 self.lista_adj[v] = []
-            self.lista_adj[u].append((v, peso))
 
-        self.vertices = len(self.lista_adj)
+        # Criar lista de adjacência reversa (entrada)
+        self.lista_adj_in = {v: [] for v in self.lista_adj}
+        for u, v, peso in self.lista_arestas:
+            self.lista_adj_in[v].append((u, peso))
 
-        self.grau_in = {v: 0 for v in self.lista_adj}
-        for u, v, _ in self.lista_arestas:
-            self.grau_in[v] += 1
-
+        # Graus
+        self.grau_in = {v: len(self.lista_adj_in[v]) for v in self.lista_adj}
         self.grau_out = {v: len(self.lista_adj[v]) for v in self.lista_adj}
 
     def numero_de_vertices(self):
@@ -31,7 +33,7 @@ class Digrafo:
         if v not in self.lista_adj:
             return []
         viz_saida = [x for x, _ in self.lista_adj[v]]
-        viz_entrada = [u for u, w, _ in self.lista_arestas if w == v]
+        viz_entrada = [u for u, x, _ in self.lista_arestas if x == v]
         return list(set(viz_saida + viz_entrada))
 
     def grau_de_entrada(self, v):
@@ -52,6 +54,9 @@ class Digrafo:
         return None
 
     def bfs(self, s):
+        if s not in self.lista_adj:
+            raise ValueError(f"Vértice {s} não existe no grafo.")
+        
         d = {v: float("inf") for v in self.lista_adj}
         pi = {v: None for v in self.lista_adj}
         d[s] = 0
@@ -68,6 +73,9 @@ class Digrafo:
         return d, pi
 
     def dfs(self, s):
+        if s not in self.lista_adj:
+            raise ValueError(f"Vértice {s} não existe no grafo.")
+        
         visitado = {v: False for v in self.lista_adj}
         pi = {v: None for v in self.lista_adj}
         ini = {v: 0 for v in self.lista_adj}
@@ -91,6 +99,9 @@ class Digrafo:
         return pi, ini, fim
 
     def bellman_ford(self, s):
+        if s not in self.lista_adj:
+            raise ValueError(f"Vértice {s} não existe no grafo.")
+        
         d = {v: float("inf") for v in self.lista_adj}
         pi = {v: None for v in self.lista_adj}
         d[s] = 0
@@ -98,16 +109,23 @@ class Digrafo:
         for _ in range(self.vertices - 1):
             mudou = False
             for u, v, peso in self.lista_arestas:
-                if d[u] + peso < d[v]:
+                if d[u] != float("inf") and d[u] + peso < d[v]:
                     d[v] = d[u] + peso
                     pi[v] = u
                     mudou = True
             if not mudou:
                 break
+        # Verificação de ciclo negativo
+        for u, v, peso in self.lista_arestas:
+            if d[u] != float("inf") and d[u] + peso < d[v]:
+                raise ValueError("O grafo contém ciclo de peso negativo.")
 
         return d, pi
 
     def dijkstra(self, s):
+        if s not in self.lista_adj:
+            raise ValueError(f"Vértice {s} não existe no grafo.")
+        
         d = {v: float("inf") for v in self.lista_adj}
         pi = {v: None for v in self.lista_adj}
         d[s] = 0
