@@ -32,9 +32,12 @@ class Digrafo:
     def retornar_vizinhos(self, v):
         if v not in self.lista_adj:
             return []
+
         viz_saida = [x for x, _ in self.lista_adj[v]]
-        viz_entrada = [u for u, x, _ in self.lista_arestas if x == v]
+        viz_entrada = [u for u, v2, _ in self.lista_arestas if v2 == v]
+
         return list(set(viz_saida + viz_entrada))
+
 
     def grau_de_entrada(self, v):
         return self.grau_in.get(v, 0)
@@ -52,6 +55,12 @@ class Digrafo:
             if vizinho == v:
                 return peso
         return None
+    
+    def grau_min(self):
+        return min(self.grau_in[v] + self.grau_out[v] for v in self.lista_adj)
+
+    def grau_max(self):
+        return max(self.grau_in[v] + self.grau_out[v] for v in self.lista_adj)
 
     def bfs(self, s):
         if s not in self.lista_adj:
