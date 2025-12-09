@@ -2,9 +2,13 @@ from Grafo import Grafo
 from Digrafo import Digrafo
 import os
 
-# Função para ler arquivos .gr
 def ler_arquivo(caminho_arquivo):
-    dados = {"conjunto_de_arestas": []}
+    dados = {
+        "num_vertices": 0,
+        "num_arestas": 0,
+        "arestas": [],
+        "adj": {}
+    }
 
     with open(caminho_arquivo, "r") as f:
         for linha in f:
@@ -12,11 +16,26 @@ def ler_arquivo(caminho_arquivo):
 
             if not linha or linha.startswith("c"):
                 continue
+
+            # Linha do problema: p sp <num_vertices> <num_arestas>
             if linha.startswith("p"):
+                partes = linha.split()
+                # Exemplo: p sp 264346 733846
+                if len(partes) >= 4:
+                    dados["num_vertices"] = int(partes[2])
+                    dados["num_arestas"] = int(partes[3])
                 continue
+
+            # Linha de arco: a x y p
             if linha.startswith("a"):
                 _, u, v, peso = linha.split()
-                dados["conjunto_de_arestas"].append((int(u), int(v), float(peso)))
+                u, v, peso = int(u), int(v), float(peso)
+
+                dados["arestas"].append((u, v, peso))
+
+                if u not in dados["adj"]:
+                    dados["adj"][u] = []
+                dados["adj"][u].append((v, peso))
 
     return dados
 
