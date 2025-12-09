@@ -25,7 +25,8 @@ def ler_arquivo(caminho_arquivo):
 base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dados"))
 
 arquivo_grafo = os.path.join(base, "grafos_teste.gr")
-arquivo_digrafo = os.path.join(base, "USA-road-d.NY.gr")
+#arquivo_digrafo = os.path.join(base, "USA-road-d.NY.gr")
+arquivo_digrafo = os.path.join(base, "digrafo_teste.gr")
 
 # Carregar grafos
 grafo_dict = ler_arquivo(arquivo_grafo)
