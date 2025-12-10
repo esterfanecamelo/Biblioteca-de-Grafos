@@ -20,8 +20,8 @@ class Digrafo:
             self.lista_adj_in[v].append((u, peso))
 
         # Graus
-        self.grau_in = {v: len(self.lista_adj_in[v]) for v in self.lista_adj}
-        self.grau_out = {v: len(self.lista_adj[v]) for v in self.lista_adj}
+        self.grau_entrada = {v: len(self.lista_adj_in[v]) for v in self.lista_adj}
+        self.grau_saida = {v: len(self.lista_adj[v]) for v in self.lista_adj}
 
     def numero_de_vertices(self):
         return self.vertices
@@ -39,10 +39,10 @@ class Digrafo:
         return list(set(viz_saida + viz_entrada))
 
     def grau_de_entrada(self, v):
-        return self.grau_in.get(v, 0)
+        return self.grau_entrada.get(v, 0)
 
     def grau_de_saida(self, v):
-        return self.grau_out.get(v, 0)
+        return self.grau_saida.get(v, 0)
 
     def grau_total(self, v):
         return self.grau_de_entrada(v) + self.grau_de_saida(v)
@@ -56,10 +56,10 @@ class Digrafo:
         return None
     
     def grau_min(self):
-        return min(self.grau_in[v] + self.grau_out[v] for v in self.lista_adj)
+        return min(self.grau_entrada[v] + self.grau_saida[v] for v in self.lista_adj)
 
     def grau_max(self):
-        return max(self.grau_in[v] + self.grau_out[v] for v in self.lista_adj)
+        return max(self.grau_entrada[v] + self.grau_saida[v] for v in self.lista_adj)
 
     def bfs(self, s):
         if s not in self.lista_adj:
@@ -90,20 +90,20 @@ class Digrafo:
         fim = {v: 0 for v in self.lista_adj}
         tempo = 0
 
-        stack = [(s, 0)]  # (vértice, índice do próximo vizinho)
+        idx_proximo = [(s, 0)]  # (vértice, índice do próximo vizinho)
         visitado[s] = True
         tempo += 1
         ini[s] = tempo
 
-        while stack:
-            u, idx = stack.pop()
+        while idx_proximo:
+            u, idx = idx_proximo.pop()
 
             # Se ainda há vizinhos a explorar
             if idx < len(self.lista_adj[u]):
                 v, _ = self.lista_adj[u][idx]
 
                 # Coloca de volta com o próximo vizinho
-                stack.append((u, idx + 1))
+                idx_proximo.append((u, idx + 1))
 
                 # Visita v se ainda não visitado
                 if not visitado[v]:
@@ -111,7 +111,7 @@ class Digrafo:
                     pi[v] = u
                     tempo += 1
                     ini[v] = tempo
-                    stack.append((v, 0))
+                    idx_proximo.append((v, 0))
             else:
                 # Finalizou u
                 tempo += 1
