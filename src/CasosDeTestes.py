@@ -1,4 +1,3 @@
-from Grafo import Grafo
 from Digrafo import Digrafo
 import os
 
@@ -39,71 +38,47 @@ def ler_arquivo(caminho_arquivo):
 
     return dados
 
-def grau_minimo(G):
-    return min(G.grau_total(v) for v in G.lista_adj)
-
-def grau_maximo(G):
-    return max(G.grau_total(v) for v in G.lista_adj)
-
 def encontrar_caminho_com_10(G):
-
-    visitado = set()
-    caminho = []
-
-    def dfs(u):
-        visitado.add(u)
-        caminho.append(u)
-
-        if len(caminho) >= 11:  # 11 vértices = 10 arestas
-            return True
-
-        for v, _ in G.lista_adj[u]:
-            if v not in visitado:
-                if dfs(v):
-                    return True
-
-        caminho.pop()
-        return False
-
     for s in G.lista_adj:
-        visitado.clear()
-        caminho.clear()
-        if dfs(s):
-            return caminho
+        pi, ini, fim = G.dfs(s)
+
+        # Ordenar por tempo de término (mais profundo primeiro)
+        ordem = sorted(fim, key=lambda x: fim[x], reverse=True)
+
+        for v in ordem:
+            # Reconstruir caminho s -> v usando pi[]
+            caminho = []
+            u = v
+            while u is not None:
+                caminho.append(u)
+                u = pi[u]
+            caminho.reverse()
+
+            if len(caminho) >= 11:  # 10 arestas
+                return caminho
 
     return None
 
 def encontrar_ciclo_com_5(G):
+    for s in G.lista_adj:
+        pi, ini, fim = G.dfs(s)
 
-    visitado = set()
-    pilha = []
+        for u in G.lista_adj:
+            for v, _ in G.lista_adj[u]:
+                if ini[v] < ini[u] < fim[v]:
+                    # Reconstruir ciclo
+                    ciclo = [u]
+                    x = u
+                    while x != v:
+                        x = pi[x]
+                        ciclo.append(x)
+                    ciclo.reverse()
 
-    def dfs(u):
-        visitado.add(u)
-        pilha.append(u)
-
-        for v, _ in G.lista_adj[u]:
-            if v in pilha:
-                idx = pilha.index(v)
-                ciclo = pilha[idx:]
-                if len(ciclo) >= 6:  # 6 vértices = 5 arestas
-                    return ciclo
-            elif v not in visitado:
-                r = dfs(v)
-                if r:
-                    return r
-
-        pilha.pop()
-        return None
-
-    for u in G.lista_adj:
-        visitado.clear()
-        pilha.clear()
-        ciclo = dfs(u)
-        if ciclo:
-            return ciclo
+                    if len(ciclo) >= 6:  # 5 arestas, 6 vértices
+                        return ciclo
 
     return None
+
 
 def vertice_mais_distante(G, origem):
     d, _ = G.dijkstra(origem)
@@ -114,22 +89,18 @@ def quantidade_de_cores(G):
     _, k = G.coloracao_propria()
     return k
 
-
 # Caminho da pasta dados
 base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dados"))
 
-arquivo_grafo = os.path.join(base, "grafos_teste.gr")
 arquivo_digrafo = os.path.join(base, "USA-road-d.NY.gr")
 
-# Carregar grafos
-grafo_dict = ler_arquivo(arquivo_grafo)
+# Carregar grafo
 digrafo_dict = ler_arquivo(arquivo_digrafo)
 
-#G = Grafo(grafo_dict)
 D = Digrafo(digrafo_dict)
 
-print("a) G.mind =", grau_minimo(D))
-print("b) G.maxd =", grau_maximo(D))
+print("a) D.mind =", D.grau_min())
+print("b) D.maxd =", D.grau_max())
 
 print("c) Caminho com ≥ 10 arestas:")
 print(encontrar_caminho_com_10(D))
@@ -139,5 +110,4 @@ print(encontrar_ciclo_com_5(D))
 
 v, dist = vertice_mais_distante(D, 129)
 print("e) Vértice mais distante de 129 =", v, "Distância =", dist)
-
-print("f) Qtde de cores =", quantidade_de_cores(D))
+print("f) Quantidade de cores =", quantidade_de_cores(D))

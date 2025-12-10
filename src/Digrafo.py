@@ -34,7 +34,7 @@ class Digrafo:
             return []
 
         viz_saida = [x for x, _ in self.lista_adj[v]]
-        viz_entrada = [u for u, v2, _ in self.lista_arestas if v2 == v]
+        viz_entrada = [u for u, _ in self.lista_adj[v]]
 
         return list(set(viz_saida + viz_entrada))
 
@@ -83,28 +83,42 @@ class Digrafo:
     def dfs(self, s):
         if s not in self.lista_adj:
             raise ValueError(f"Vértice {s} não existe no grafo.")
-        
+
         visitado = {v: False for v in self.lista_adj}
         pi = {v: None for v in self.lista_adj}
         ini = {v: 0 for v in self.lista_adj}
         fim = {v: 0 for v in self.lista_adj}
-        tempo = [0]
+        tempo = 0
 
-        def dfs_visita(u):
-            visitado[u] = True
-            tempo[0] += 1
-            ini[u] = tempo[0]
+        stack = [(s, 0)]  # (vértice, índice do próximo vizinho)
+        visitado[s] = True
+        tempo += 1
+        ini[s] = tempo
 
-            for v, _ in self.lista_adj[u]:
+        while stack:
+            u, idx = stack.pop()
+
+            # Se ainda há vizinhos a explorar
+            if idx < len(self.lista_adj[u]):
+                v, _ = self.lista_adj[u][idx]
+
+                # Coloca de volta com o próximo vizinho
+                stack.append((u, idx + 1))
+
+                # Visita v se ainda não visitado
                 if not visitado[v]:
+                    visitado[v] = True
                     pi[v] = u
-                    dfs_visita(v)
+                    tempo += 1
+                    ini[v] = tempo
+                    stack.append((v, 0))
+            else:
+                # Finalizou u
+                tempo += 1
+                fim[u] = tempo
 
-            tempo[0] += 1
-            fim[u] = tempo[0]
-
-        dfs_visita(s)
         return pi, ini, fim
+
 
     def bellman_ford(self, s):
         if s not in self.lista_adj:
@@ -164,7 +178,7 @@ class Digrafo:
         
         k = max(cores.values())
         return cores, k
-    
+    '''
     def caminho_com_arestas_minimas(self, minimo, origem=None):
         """
         Retorna um caminho simples contendo pelo menos "minimo" arestas.
@@ -248,3 +262,4 @@ class Digrafo:
 
 
             return None
+'''
