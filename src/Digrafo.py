@@ -38,7 +38,6 @@ class Digrafo:
 
         return list(set(viz_saida + viz_entrada))
 
-
     def grau_de_entrada(self, v):
         return self.grau_in.get(v, 0)
 
@@ -165,3 +164,87 @@ class Digrafo:
         
         k = max(cores.values())
         return cores, k
+    
+    def caminho_com_arestas_minimas(self, minimo, origem=None):
+        """
+        Retorna um caminho simples contendo pelo menos "minimo" arestas.
+        Se origem for fornecida, tenta iniciar por ela. Caso contrário,
+        tenta todos os vértices como início.
+        """
+        def dfs(u, visitados, caminho):
+            if len(caminho) - 1 >= minimo:
+                return True
+            for v, _ in self.lista_adj[u]:
+                if v not in visitados:
+                    visitados.add(v)
+                    caminho.append(v)
+                    if dfs(v, visitados, caminho):
+                        return True
+                    caminho.pop()
+                    visitados.remove(v)
+            return False
+
+
+        pontos_iniciais = [origem] if origem is not None else list(self.lista_adj.keys())
+
+
+        for s in pontos_iniciais:
+            visitados = set([s])
+            caminho = [s]
+            if dfs(s, visitados, caminho):
+                return caminho
+        return None
+    
+    def ciclo_com_arestas_minimas(self, minimo):
+        """
+        Detecta um ciclo simples contendo pelo menos 'minimo' arestas.
+        Usa DFS com detecção de arestas de retorno (back edges),
+        adequado para grafos grandes.
+        """
+
+
+        visitado = {v: False for v in self.lista_adj}
+        pai = {v: None for v in self.lista_adj}
+        em_pilha = {v: False for v in self.lista_adj}
+
+
+        def reconstruir_ciclo(u, v):
+            ciclo = [v]
+            atual = u
+            while atual != v and atual is not None:
+                ciclo.append(atual)
+                atual = pai[atual]
+            ciclo.append(v)
+            ciclo.reverse()
+            return ciclo
+
+
+        def dfs(u):
+            visitado[u] = True
+            em_pilha[u] = True
+
+            for v, _ in self.lista_adj[u]:
+                if not visitado[v]:
+                    pai[v] = u
+                    resultado = dfs(v)
+                    if resultado:
+                        return resultado
+
+                # Encontrou um ciclo (aresta para vértice ainda na pilha)
+                elif em_pilha[v]:
+                    ciclo = reconstruir_ciclo(u, v)
+                    if len(ciclo) - 1 >= minimo:
+                        return ciclo
+
+
+                em_pilha[u] = False
+                return None
+
+            for v in self.lista_adj:
+                if not visitado[v]:
+                    resultado = dfs(v)
+                    if resultado:
+                        return resultado
+
+
+            return None

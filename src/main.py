@@ -44,8 +44,8 @@ def ler_arquivo(caminho_arquivo):
 base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dados"))
 
 arquivo_grafo = os.path.join(base, "grafos_teste.gr")
-#arquivo_digrafo = os.path.join(base, "USA-road-d.NY.gr")
-arquivo_digrafo = os.path.join(base, "digrafo_teste.gr")
+arquivo_digrafo = os.path.join(base, "USA-road-d.NY.gr")
+#arquivo_digrafo = os.path.join(base, "digrafo_teste.gr")
 
 # Carregar grafos
 grafo_dict = ler_arquivo(arquivo_grafo)
@@ -147,6 +147,8 @@ def menu_digrafo():
         print("7 - DFS")
         print("8 - Bellman-Ford")
         print("9 - Dijkstra")
+        print("10 - Caminho com mínimo de arestas")
+        print("11 - Ciclo com mínimo de arestas")
         print("0 - Voltar")
 
         op = input("Escolha: ")
@@ -195,6 +197,31 @@ def menu_digrafo():
             d, pi = D.dijkstra(v)
             print("Distâncias:", d)
             print("Pais:", pi)
+            
+        elif op == "10":
+            minimo = int(input("Quantidade mínima de arestas: "))
+            origem = int(input("Vértice de origem (ou 0 para qualquer): "))
+
+            if origem == 0:
+                caminho = D.caminho_com_arestas_minimas(minimo)
+            else:
+                caminho = D.caminho_com_arestas_minimas(minimo, origem)
+
+            if caminho:
+                print("Caminho encontrado:", caminho)
+                print("Quantidade de arestas:", len(caminho) - 1)
+            else:
+                print("Nenhum caminho com essa quantidade de arestas foi encontrado.")
+                
+        elif op == "11":
+            minimo = int(input("Quantidade mínima de arestas do ciclo: "))
+            ciclo = D.ciclo_com_arestas_minimas(minimo)
+
+            if ciclo:
+                print("Ciclo encontrado:", ciclo)
+                print("Quantidade de arestas:", len(ciclo) - 1)
+            else:
+                print("Nenhum ciclo com essa quantidade mínima foi encontrado.")
 
         elif op == "0":
             break

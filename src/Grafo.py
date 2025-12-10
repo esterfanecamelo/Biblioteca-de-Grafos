@@ -160,3 +160,6 @@ class Grafo:
             cores[v] = cor
 
         return cores, max(cores.values())
+    
+
+
